@@ -606,14 +606,15 @@
       state.queens = []; // Clear current cast
       
       cast.forEach(q => {
+        const s = q.stats || [];
         state.queens.push({
           name: q.name,
           image: q.image,
-          comedy: intRand(3, 10),
-          design: intRand(3, 10),
-          performance: intRand(3, 10),
-          acting: intRand(3, 10),
-          lip_sync: intRand(3, 10)
+          comedy: s[0] || intRand(3, 10),
+          design: s[1] || intRand(3, 10),
+          performance: s[2] || intRand(3, 10),
+          acting: s[3] || intRand(3, 10),
+          lip_sync: s[4] || intRand(3, 10)
         });
       });
       
@@ -667,15 +668,19 @@
         return alert(`${name} is already in the cast!`);
       }
       
-      // We randomly generate stats for real queens since they don't have them in the json
+      // Find the queen in the JSON data to get her stats
+      const queenData = allRealQueens.find(q => q.name === name);
+      const s = (queenData && queenData.stats) ? queenData.stats : [];
+      
+      // We load stats from the JSON array [comedy, design, performance, acting, lip_sync], or fallback to random
       state.queens.push({
         name: name,
         image: image,
-        comedy: intRand(3, 10),
-        design: intRand(3, 10),
-        performance: intRand(3, 10),
-        acting: intRand(3, 10),
-        lip_sync: intRand(3, 10)
+        comedy: s[0] || intRand(3, 10),
+        design: s[1] || intRand(3, 10),
+        performance: s[2] || intRand(3, 10),
+        acting: s[3] || intRand(3, 10),
+        lip_sync: s[4] || intRand(3, 10)
       });
       
       updateSetupUI();
