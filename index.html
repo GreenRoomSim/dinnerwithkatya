@@ -997,6 +997,11 @@
           else okay.push(row.queen);
         });
 
+        // Randomize the display order so it's not predictable
+        slayed.sort(() => Math.random() - 0.5);
+        okay.sort(() => Math.random() - 0.5);
+        bad.sort(() => Math.random() - 0.5);
+
         content = `
           <div class="section-card">
             <div class="label-row"><span class="pill">Screen ${state.phase}</span><span class="pill">Maxi Challenge</span></div>
@@ -1014,16 +1019,21 @@
         if (state.seasonFormat === "all-stars-legacy") {
             tops = [...data.placements.topTwo, ...data.placements.highQueens];
             bottoms = [...(data.placements.savedLow ? [data.placements.savedLow] : []), ...data.placements.bottomTwo];
-            safes = data.placements.pureSafe;
+            safes = [...data.placements.pureSafe];
         } else if (state.episodeNumber === 1 && state.premiereFormat === "top2") {
             tops = [...data.placements.topTwo, ...data.placements.highQueens];
             bottoms = [...data.placements.bottomThree];
-            safes = data.placements.pureSafe;
+            safes = [...data.placements.pureSafe];
         } else {
             tops = [...data.placements.winners, ...data.placements.highQueens];
             bottoms = [...(data.placements.savedLow ? [data.placements.savedLow] : []), ...data.placements.bottomTwo];
-            safes = data.placements.pureSafe;
+            safes = [...data.placements.pureSafe];
         }
+
+        // Randomize the display order so it's not predictable
+        tops.sort(() => Math.random() - 0.5);
+        bottoms.sort(() => Math.random() - 0.5);
+        safes.sort(() => Math.random() - 0.5);
 
         content = `
           <div class="section-card">
@@ -1200,18 +1210,24 @@
           let isDoubleSashay = (s1 <= 7 && s2 <= 7 && Math.random() < 0.02 && activeQueens().length > (state.finaleFormat === "top3" ? 4 : 5));
 
           if (state.seasonFormat === "all-stars-legacy") {
-              w.record.WIN += 1; w.history[state.episodeNumber - 1] = "WIN";
-              l.record.TOP2 = (l.record.TOP2 || 0) + 1; l.history[state.episodeNumber - 1] = "TOP 2";
-              
-              const btmQueens = data.placements.bottomTwo;
-              const eliminatedQueen = btmQueens[btmQueens.length - 1]; // pick lowest scorer
+              if (state.episodeNumber === 1 && (state.premiereFormat === "no-elim" || state.premiereFormat === "top2")) {
+                  w.record.WIN += 1; w.history[state.episodeNumber - 1] = "WIN";
+                  l.record.TOP2 = (l.record.TOP2 || 0) + 1; l.history[state.episodeNumber - 1] = "TOP 2";
+                  data.elimination = { legacyNoElim: true, winner: w, top2loser: l };
+              } else {
+                  w.record.WIN += 1; w.history[state.episodeNumber - 1] = "WIN";
+                  l.record.TOP2 = (l.record.TOP2 || 0) + 1; l.history[state.episodeNumber - 1] = "TOP 2";
+                  
+                  const btmQueens = data.placements.bottomTwo;
+                  const eliminatedQueen = pick(btmQueens); // Random bottom queen instead of the lowest scorer
 
-              eliminatedQueen.record.ELIM += 1; 
-              eliminatedQueen.eliminated = true; 
-              eliminatedQueen.elimOrder = state.episodeNumber; 
-              eliminatedQueen.history[state.episodeNumber - 1] = "ELIM";
+                  eliminatedQueen.record.ELIM += 1; 
+                  eliminatedQueen.eliminated = true; 
+                  eliminatedQueen.elimOrder = state.episodeNumber; 
+                  eliminatedQueen.history[state.episodeNumber - 1] = "ELIM";
 
-              data.elimination = { legacy: true, winner: w, top2loser: l, eliminated: eliminatedQueen };
+                  data.elimination = { legacy: true, winner: w, top2loser: l, eliminated: eliminatedQueen };
+              }
           } else if (state.episodeNumber === 1 && state.premiereFormat === "top2") {
               w.record.WIN += 1; w.history[0] = "WIN";
               l.record.TOP2 = (l.record.TOP2 || 0) + 1; l.history[0] = "TOP 2";
@@ -1252,6 +1268,18 @@
                 <p class="muted" style="margin-bottom: 8px;">${escapeHtml(e.winner.name)}, with great power comes great responsibility. Which queen have you chosen to get the chop?</p>
                 <div class="placement-card bg-elim">${escapeHtml(e.eliminated.name)}</div>
                 <p class="muted" style="margin-top: 8px;">As it is written, so it shall be done. Sashay away.</p>
+              </div>
+            `;
+        } else if (e.legacyNoElim) {
+            contentInner = `
+              <div class="group-row">
+                <div class="placement-card bg-win">${escapeHtml(e.winner.name)}</div>
+                <p class="muted">You're a winner baby! You have earned a cash tip of $10,000.</p>
+              </div>
+              <div class="group-row" style="border:none;">
+                <div class="placement-card bg-top2">${escapeHtml(e.top2loser.name)}</div>
+                <p class="muted">You are safe to slay another day.</p>
+                <p class="muted" style="margin-top: 8px; font-weight: bold;">Since it's the premiere, no one is going home tonight!</p>
               </div>
             `;
         } else if (e.top2LipSync) {
