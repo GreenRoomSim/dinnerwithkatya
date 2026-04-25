@@ -2735,9 +2735,9 @@ if (state.seasonFormat === "tournament-of-all-stars") {
                       ${sortedQueens.map(q => `
                         <tr>
                           <td class="qname-cell">
-                            <div style="display:flex; align-items:center; gap:10px;">
+                            <div style="display:flex; align-items:center; justify-content:space-between;">
                               <span>${escapeHtml(q.name)}</span>
-                              ${q.image ? `<img src="${q.image}" style="width:42px; height:42px; border-radius:50%; object-fit:cover; border:2px solid var(--border); flex-shrink:0;" onerror="this.style.display='none'">` : ""}
+                              ${q.image ? `<img src="${q.image}" style="width:42px; height:42px; object-fit:cover; border:2px solid var(--border); flex-shrink:0;" onerror="this.style.display='none'">` : ""}
                             </div>
                           </td>
                           ${Array.from({length: state.episodeNumber}, (_, i) => {
