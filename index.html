@@ -240,39 +240,61 @@
     }
 
     /* Standings Table Styling */
-    .standings-table { width: 100%; border-collapse: collapse; margin-top: 16px;
-      font-size: 14px; background: white; table-layout: auto; }
-    .standings-table th { background: #f9fff5; padding: 8px 6px; border: 1px solid var(--border);
-      font-weight: 700; text-align: center; font-size: 13px; white-space: nowrap; }
+    .standings-table {
+      border-collapse: collapse;
+      margin-top: 16px;
+      font-size: 14px;
+      background: white;
+      table-layout: fixed; /* Fixed layout: columns honour explicit widths */
+      width: auto;         /* Don't stretch to fill — let content define total width */
+    }
+    /* Name column: fixed, wider */
+    .standings-table th.queen-col,
+    .standings-table td.qname-cell {
+      width: 200px;
+      min-width: 200px;
+      max-width: 200px;
+    }
+    /* Every episode column: fixed, uniform */
+    .standings-table th.ep-col,
+    .standings-table td.ep-data-cell {
+      width: 56px;
+      min-width: 56px;
+      max-width: 56px;
+    }
+    /* Score column: fixed, narrower */
+    .standings-table th.score-col,
+    .standings-table td.score-cell {
+      width: 56px;
+      min-width: 56px;
+      max-width: 56px;
+    }
+    .standings-table th { background: #f9fff5; padding: 8px 4px; border: 1px solid var(--border);
+      font-weight: 700; text-align: center; font-size: 13px; overflow: hidden; }
     .standings-table th.ep-challenge {
       background: #f2ffe7;
-      font-family: inherit;
       font-weight: 500;
-      font-size: 10px;
+      font-size: 9px;
       color: var(--muted);
-      white-space: nowrap;
-      padding: 4px 6px;
-      max-width: 80px;
+      padding: 3px 4px;
       overflow: hidden;
       text-overflow: ellipsis;
+      white-space: nowrap;
     }
     .standings-table th.ep-mini {
       background: #f9fff5;
-      font-family: inherit;
       font-weight: 400;
-      font-size: 9px;
+      font-size: 8px;
       font-style: italic;
       color: var(--muted);
-      white-space: nowrap;
-      padding: 3px 6px;
-      max-width: 80px;
+      padding: 2px 4px;
       overflow: hidden;
       text-overflow: ellipsis;
+      white-space: nowrap;
     }
     .standings-table td { padding: 0; border: 1px solid var(--border);
-      text-align: center; vertical-align: middle; }
-    .standings-table td.qname-cell { text-align: left; font-weight: 700; min-width: 160px; max-width: 220px; padding: 0;
-    }
+      text-align: center; vertical-align: middle; overflow: hidden; }
+    .standings-table td.qname-cell { text-align: left; font-weight: 700; padding: 0; }
     .standings-table .empty-cell { background: #fcfcfc; }
     /* Queen cell layout: name + full-height image */
     .standings-table .qname-inner {
@@ -285,8 +307,13 @@
       flex: 1;
       display: flex;
       align-items: center;
-      padding: 8px 10px;
+      padding: 6px 8px;
       font-weight: 700;
+      font-size: 13px;
+      overflow: hidden;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+      min-width: 0;
     }
     .standings-table .qname-img {
       width: 52px;
@@ -300,14 +327,15 @@
     /* Placement cell text */
     .standings-table td.placement-cell {
       font-weight: 900;
-      font-size: 13px;
-      padding: 6px 4px;
+      font-size: 12px;
+      padding: 4px 2px;
       white-space: nowrap;
+      overflow: hidden;
     }
     .standings-table td.score-cell {
       font-weight: 700;
-      padding: 6px 8px;
-      white-space: nowrap;
+      font-size: 13px;
+      padding: 4px 2px;
     }
 
     .footer-actions { display: flex; justify-content: flex-end;
@@ -2761,15 +2789,15 @@ if (state.seasonFormat === "tournament-of-all-stars") {
                   <table class="standings-table">
                     <thead>
                       <tr>
-                        <th rowspan="3">Queen</th>
-                        ${Array.from({length: state.episodeNumber}, (_, i) => `<th>Ep ${i+1}</th>`).join("")}
-                        <th rowspan="3">Score</th>
+                        <th rowspan="3" class="queen-col">Queen</th>
+                        ${Array.from({length: state.episodeNumber}, (_, i) => `<th class="ep-col">Ep ${i+1}</th>`).join("")}
+                        <th rowspan="3" class="score-col">Score</th>
                       </tr>
                       <tr>
-                        ${Array.from({length: state.episodeNumber}, (_, i) => `<th class="ep-challenge">${state.episodeLog[i] ? escapeHtml(state.episodeLog[i].challenge) : "—"}</th>`).join("")}
+                        ${Array.from({length: state.episodeNumber}, (_, i) => `<th class="ep-col ep-challenge">${state.episodeLog[i] ? escapeHtml(state.episodeLog[i].challenge) : "—"}</th>`).join("")}
                       </tr>
                       <tr>
-                        ${Array.from({length: state.episodeNumber}, (_, i) => `<th class="ep-mini">${state.episodeLog[i] ? escapeHtml(state.episodeLog[i].mini) : "—"}</th>`).join("")}
+                        ${Array.from({length: state.episodeNumber}, (_, i) => `<th class="ep-col ep-mini">${state.episodeLog[i] ? escapeHtml(state.episodeLog[i].mini) : "—"}</th>`).join("")}
                       </tr>
                     </thead>
                     <tbody>
@@ -2783,9 +2811,9 @@ if (state.seasonFormat === "tournament-of-all-stars") {
                           </td>
                           ${Array.from({length: state.episodeNumber}, (_, i) => {
                             let p = q.history[i];
-                            if (!p) return `<td class="empty-cell"></td>`;
+                            if (!p) return `<td class="ep-data-cell empty-cell"></td>`;
                             let cssClass = getTrackRecordClass(p);
-                            return `<td class="placement-cell ${cssClass}">${p}</td>`;
+                            return `<td class="ep-data-cell placement-cell ${cssClass}">${p}</td>`;
                           }).join("")}
                           <td class="score-cell">${trackScore(q)}</td>
                         </tr>
@@ -3053,15 +3081,15 @@ if (state.seasonFormat === "tournament-of-all-stars") {
                     <table class="standings-table">
                       <thead>
                         <tr>
-                          <th rowspan="3">Queen</th>
-                          ${Array.from({length: state.episodeNumber}, (_, i) => `<th>Ep ${i+1}</th>`).join("")}
-                          <th rowspan="3">Score</th>
+                          <th rowspan="3" class="queen-col">Queen</th>
+                          ${Array.from({length: state.episodeNumber}, (_, i) => `<th class="ep-col">Ep ${i+1}</th>`).join("")}
+                          <th rowspan="3" class="score-col">Score</th>
                         </tr>
                         <tr>
-                          ${Array.from({length: state.episodeNumber}, (_, i) => `<th class="ep-challenge">${state.episodeLog[i] ? escapeHtml(state.episodeLog[i].challenge) : "—"}</th>`).join("")}
+                          ${Array.from({length: state.episodeNumber}, (_, i) => `<th class="ep-col ep-challenge">${state.episodeLog[i] ? escapeHtml(state.episodeLog[i].challenge) : "—"}</th>`).join("")}
                         </tr>
                         <tr>
-                          ${Array.from({length: state.episodeNumber}, (_, i) => `<th class="ep-mini">${state.episodeLog[i] ? escapeHtml(state.episodeLog[i].mini) : "—"}</th>`).join("")}
+                          ${Array.from({length: state.episodeNumber}, (_, i) => `<th class="ep-col ep-mini">${state.episodeLog[i] ? escapeHtml(state.episodeLog[i].mini) : "—"}</th>`).join("")}
                         </tr>
                       </thead>
                       <tbody>
@@ -3075,9 +3103,9 @@ if (state.seasonFormat === "tournament-of-all-stars") {
                             </td>
                             ${Array.from({length: state.episodeNumber}, (_, i) => {
                               let p = q.history[i];
-                              if (!p) return `<td class="empty-cell"></td>`;
+                              if (!p) return `<td class="ep-data-cell empty-cell"></td>`;
                               let cssClass = getTrackRecordClass(p);
-                              return `<td class="placement-cell ${cssClass}">${p}</td>`;
+                              return `<td class="ep-data-cell placement-cell ${cssClass}">${p}</td>`;
                             }).join("")}
                             <td class="score-cell">${trackScore(q)}</td>
                           </tr>
@@ -3209,15 +3237,15 @@ if (state.seasonFormat === "tournament-of-all-stars") {
                   <table class="standings-table">
                     <thead>
                       <tr>
-                        <th rowspan="3">Queen</th>
-                        ${Array.from({length: state.episodeNumber}, (_, i) => `<th>Ep ${i+1}</th>`).join("")}
-                        <th rowspan="3">Score</th>
+                        <th rowspan="3" class="queen-col">Queen</th>
+                        ${Array.from({length: state.episodeNumber}, (_, i) => `<th class="ep-col">Ep ${i+1}</th>`).join("")}
+                        <th rowspan="3" class="score-col">Score</th>
                       </tr>
                       <tr>
-                        ${Array.from({length: state.episodeNumber}, (_, i) => `<th class="ep-challenge">${state.episodeLog[i] ? escapeHtml(state.episodeLog[i].challenge) : "—"}</th>`).join("")}
+                        ${Array.from({length: state.episodeNumber}, (_, i) => `<th class="ep-col ep-challenge">${state.episodeLog[i] ? escapeHtml(state.episodeLog[i].challenge) : "—"}</th>`).join("")}
                       </tr>
                       <tr>
-                        ${Array.from({length: state.episodeNumber}, (_, i) => `<th class="ep-mini">${state.episodeLog[i] ? escapeHtml(state.episodeLog[i].mini) : "—"}</th>`).join("")}
+                        ${Array.from({length: state.episodeNumber}, (_, i) => `<th class="ep-col ep-mini">${state.episodeLog[i] ? escapeHtml(state.episodeLog[i].mini) : "—"}</th>`).join("")}
                       </tr>
                     </thead>
                     <tbody>
@@ -3231,9 +3259,9 @@ if (state.seasonFormat === "tournament-of-all-stars") {
                           </td>
                           ${Array.from({length: state.episodeNumber}, (_, i) => {
                             let p = q.history[i];
-                            if (!p) return `<td class="empty-cell"></td>`;
+                            if (!p) return `<td class="ep-data-cell empty-cell"></td>`;
                             let cssClass = getTrackRecordClass(p);
-                            return `<td class="placement-cell ${cssClass}">${p}</td>`;
+                            return `<td class="ep-data-cell placement-cell ${cssClass}">${p}</td>`;
                           }).join("")}
                           <td class="score-cell">${trackScore(q)}</td>
                         </tr>
@@ -3344,15 +3372,15 @@ if (state.seasonFormat === "tournament-of-all-stars") {
                     <table class="standings-table">
                       <thead>
                         <tr>
-                          <th rowspan="3">Queen</th>
-                          ${Array.from({length: state.episodeNumber}, (_, i) => `<th>Ep ${i+1}</th>`).join("")}
-                          <th rowspan="3">Score</th>
+                          <th rowspan="3" class="queen-col">Queen</th>
+                          ${Array.from({length: state.episodeNumber}, (_, i) => `<th class="ep-col">Ep ${i+1}</th>`).join("")}
+                          <th rowspan="3" class="score-col">Score</th>
                         </tr>
                         <tr>
-                          ${Array.from({length: state.episodeNumber}, (_, i) => `<th class="ep-challenge">${state.episodeLog[i] ? escapeHtml(state.episodeLog[i].challenge) : "—"}</th>`).join("")}
+                          ${Array.from({length: state.episodeNumber}, (_, i) => `<th class="ep-col ep-challenge">${state.episodeLog[i] ? escapeHtml(state.episodeLog[i].challenge) : "—"}</th>`).join("")}
                         </tr>
                         <tr>
-                          ${Array.from({length: state.episodeNumber}, (_, i) => `<th class="ep-mini">${state.episodeLog[i] ? escapeHtml(state.episodeLog[i].mini) : "—"}</th>`).join("")}
+                          ${Array.from({length: state.episodeNumber}, (_, i) => `<th class="ep-col ep-mini">${state.episodeLog[i] ? escapeHtml(state.episodeLog[i].mini) : "—"}</th>`).join("")}
                         </tr>
                       </thead>
                       <tbody>
@@ -3366,9 +3394,9 @@ if (state.seasonFormat === "tournament-of-all-stars") {
                             </td>
                             ${Array.from({length: state.episodeNumber}, (_, i) => {
                               let p = q.history[i];
-                              if (!p) return `<td class="empty-cell"></td>`;
+                              if (!p) return `<td class="ep-data-cell empty-cell"></td>`;
                               let cssClass = getTrackRecordClass(p);
-                              return `<td class="placement-cell ${cssClass}">${p}</td>`;
+                              return `<td class="ep-data-cell placement-cell ${cssClass}">${p}</td>`;
                             }).join("")}
                             <td class="score-cell">${trackScore(q)}</td>
                           </tr>
