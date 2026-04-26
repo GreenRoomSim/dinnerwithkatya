@@ -219,14 +219,14 @@
     .bg-elim { background: #883131 !important; color: #ffffff !important; border: none;
     }
     
-    /* Tournament of All Stars — expanded placements */
-    .bg-t_win    { background: #00bfff !important; color: #000000 !important; border: none; font-weight: bold; } /* Top 2, didn't win LS */
-    .bg-t_win_adv  { background: #0a53a8 !important; color: #ffffff !important; border: none; font-weight: bold; } /* LS winner + advanced */
-    .bg-t_win2_adv { background: #00bfff !important; color: #000000 !important; border: none; font-weight: bold; } /* LS loser + advanced */
-    .bg-t_safe_adv { background: #ffffff !important; color: #000000 !important; border: 1px solid var(--border); }  /* Safe + advanced */
-    .bg-t_safe_elim { background: #651b1b !important; color: #ffffff !important; border: none; } /* Safe + eliminated */
-    .bg-t_win2_elim { background: #7a1b1b !important; color: #ffffff !important; border: none; font-weight: bold; } /* LS loser + eliminated */
-    .bg-t_win_elim  { background: #4f0f0f !important; color: #ffffff !important; border: none; font-weight: bold; } /* LS winner + eliminated */
+    /* Tournament of All Stars — expanded placements (use standard base colors) */
+    .bg-t_win    { background: #00bfff !important; color: #000000 !important; border: none; font-weight: bold; } /* Top 2 standalone (no outcome yet) */
+    .bg-t_win_adv  { background: #0a53a8 !important; color: #ffffff !important; border: none; font-weight: bold; } /* WIN + ADV → WIN color */
+    .bg-t_win2_adv { background: #0a53a8 !important; color: #ffffff !important; border: none; font-weight: bold; } /* WIN + ADV → WIN color */
+    .bg-t_safe_adv { background: #ffffff !important; color: #000000 !important; border: 1px solid var(--border); }  /* SAFE + ADV → SAFE color */
+    .bg-t_safe_elim { background: #883131 !important; color: #ffffff !important; border: none; } /* SAFE + ELIM → ELIM color */
+    .bg-t_win2_elim { background: #883131 !important; color: #ffffff !important; border: none; font-weight: bold; } /* WIN + ELIM → ELIM color */
+    .bg-t_win_elim  { background: #883131 !important; color: #ffffff !important; border: none; font-weight: bold; } /* WIN + ELIM → ELIM color */
 
     .bg-shantay { background: #dcf3cd !important; color: #14380e !important; border: none;
     }
@@ -278,12 +278,12 @@
       min-width: 76px;
       max-width: 76px;
     }
-    /* Tournament episode column — wider to fit compound labels like WIN + ADV */
+    /* Tournament episode column — same width as regular */
     .standings-table th.ep-col-tournament,
     .standings-table td.ep-data-cell-tournament {
-      width: 76px;
-      min-width: 76px;
-      max-width: 76px;
+      width: 56px;
+      min-width: 56px;
+      max-width: 56px;
     }
     /* Finale episode column — widest */
     .standings-table th.ep-col-finale,
@@ -358,9 +358,22 @@
     .standings-table td.placement-cell {
       font-weight: 900;
       font-size: 12px;
-      padding: 4px 2px;
+      padding: 2px 2px;
       white-space: nowrap;
       overflow: hidden;
+      height: 52px;
+      max-height: 52px;
+    }
+    /* Compound TOAS labels (e.g. WIN + ADV) — small, wrappable, never expand the cell */
+    .standings-table td.placement-cell .compound-placement {
+      display: block;
+      font-size: 8px;
+      font-weight: 800;
+      line-height: 1.25;
+      white-space: normal;
+      word-break: break-word;
+      overflow: hidden;
+      padding: 0 1px;
     }
     .standings-table td.score-cell {
       font-weight: 700;
@@ -1247,12 +1260,12 @@
     function getTrackRecordLabel(p) {
         if (!p) return "";
         if (p === "T_WIN")       return "WIN";
-        if (p === "T_WIN_ADV")   return "WIN + ADV";
-        if (p === "T_WIN2_ADV")  return "WIN + ADV";
-        if (p === "T_SAFE_ADV")  return "SAFE + ADV";
-        if (p === "T_SAFE_ELIM") return "SAFE + ELIM";
-        if (p === "T_WIN2_ELIM") return "WIN + ELIM";
-        if (p === "T_WIN_ELIM")  return "WIN + ELIM";
+        if (p === "T_WIN_ADV")   return `<span class="compound-placement">WIN + ADV</span>`;
+        if (p === "T_WIN2_ADV")  return `<span class="compound-placement">WIN + ADV</span>`;
+        if (p === "T_SAFE_ADV")  return `<span class="compound-placement">SAFE + ADV</span>`;
+        if (p === "T_SAFE_ELIM") return `<span class="compound-placement">SAFE + ELIM</span>`;
+        if (p === "T_WIN2_ELIM") return `<span class="compound-placement">WIN + ELIM</span>`;
+        if (p === "T_WIN_ELIM")  return `<span class="compound-placement">WIN + ELIM</span>`;
         return p;
     }
 
